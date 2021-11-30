@@ -53,7 +53,7 @@ audios/yle_1/part2
 │   └── MEDIA_2014_00868316.wav
 └── readme_and_licence.txt
 ```
-Convert utt2label into diarzation that memad needs
+Convert utt2label into diarization that memad needs
 ```shell
 python3 raw2json.py audios/yle_1/part2/audio/MEDIA_2014_00868316.utt2label 
 ```
