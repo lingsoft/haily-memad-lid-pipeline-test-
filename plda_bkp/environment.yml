@@ -1,0 +1,10 @@
+dependencies:
+- python~=3.7  # Necessary for plda.
+- numpy~=1.20.3  # Necessary for plda.
+- scipy~=1.6.2  # Necessary for plda.
+- scikit-learn==0.22.1 # Necessary for plda.
+- pytest~=6.2.4  # Recommended for testing.
+#- pycodestyle~=2.4.0  # Recommended for contributing.
+#- matplotlib~=2.2.2  # Optional.
+#- nb_conda~=2.2.1  # Optional.
+#- jupyter~=1.0.0  # Optional.
