@@ -3,9 +3,9 @@ MeMAD spoken language identification pipeline verification and testing\
 Current support languages: fi sv fr de en x-nolang\
 Input: audio + possible annotation file/diarization json\
 Output: spoken language segmentation results\
-Credits and more information about the orignal pipeline is available [here](https://github.com/MeMAD-project/memad-lid-pipeline), models used in the pipeline [here](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)\
+Credits and more information about the original pipeline is available [here](https://github.com/MeMAD-project/memad-lid-pipeline), models used in the pipeline [here](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)\
 In general, there are two cases that memad lid pipeline can be tested. 
-- Audio file comes with diarization file (timeframe and corresponding spoken language) : this is the best case to evaluate the performance since the tool knows how to split audio file into segments and predict spoken languages of these segmenets
+- Audio file comes with diarization file (timeframe and corresponding spoken language) : this is the best case to evaluate the performance since the tool knows how to split audio file into segments and predict spoken languages of these segments
 - Audio file only and labels of the whole file. For example Spoken finnish language only audio file.
 
 ## General setup
@@ -13,7 +13,7 @@ You will need:
 - python3.7
 - lidbox
 - plda
-- transfomer
+- transformer
 - memad lid models [here](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)
 
 Install dependencies
@@ -114,7 +114,7 @@ audios/VOX
     ├── fr
     └── sv
 ```
-where each `de` subdir contains audios of that languages, the dir name is also labels of audios inside.
+where each `de` subdir contains audios of that language, the dir name is also labels of audios inside.
 
 ```shell
 sh predict_n_test.sh audios/VOX
