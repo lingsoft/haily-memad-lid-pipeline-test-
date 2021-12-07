@@ -6,7 +6,7 @@ Output: spoken language segmentation results\
 Credits and more information about the original pipeline is available [here](https://github.com/MeMAD-project/memad-lid-pipeline), models used in the pipeline [here](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)\
 In general:
 - Pass input audio into diarization and ASR system to obtain audio segmentation according to speaker changes
-- Audio file and diarization file then goes to the Memad LID pipeline, output is ELG json response which contains identified languages of different segments and also memad performance report.
+- Audio file and diarization file then goes to the Memad LID pipeline, output is ELG json response which contains identified languages of different segments and also Memad performance report.
 
 ## General setup
 You will need:
@@ -137,7 +137,7 @@ weighted avg       1.00      0.49      0.66       100
 # MEMAD pipeline API Service, ELG compatible
 
 ## Introduction
-Spoken Language Identification API compatiable with [ELG](https://european-language-grid.readthedocs.io/en/latest/all/A2_API/LTInternalAPI.html#audio-requests)
+Spoken Language Identification API compatible with [ELG](https://european-language-grid.readthedocs.io/en/latest/all/A2_API/LTInternalAPI.html#audio-requests)
 
 ## Start API service
 ```shell
@@ -374,7 +374,7 @@ docker build . -t memad-api
 ```
 ### Run the docker based on recent created image tagged with name: memad-api
 ```shell
-docker run --rm -p 8080:3000 memad-api
+docker run --rm -p 3000:8000 memad-api
 ```
 ### Test the docker container
 ```shell
