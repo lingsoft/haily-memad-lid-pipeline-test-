@@ -26,10 +26,6 @@ audio_base_dir = up(up(utt2label_path))
 anno_diar_path = audio_base_dir + '/anno/' + wav_fname + '-diar.json'
 
 df = utt2label2lang(utt2label_path)
-# df = pd.read_csv('raw/MEDIA_2018_01414607-lang.txt', sep=' ', names=["start", "end", 'file', 'speaker', 'lang'])
-# df['start'] = df['start'].map(lambda x: time_convert(x))
-# df['end'] = df['end'].map(lambda x: time_convert(x))
-
 
 res = []
 for index, row in df.iterrows():
