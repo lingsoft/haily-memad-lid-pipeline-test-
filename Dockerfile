@@ -3,7 +3,7 @@ FROM python:3.7-slim
 # Install toolkits
 RUN apt-get update \
     && apt-get install -y git build-essential locales && \
-    locale-gen en_US.UTF-8 && apt-get install ffmpeg -y && apt-get install sox -y
+    locale-gen en_US.UTF-8 && apt-get install ffmpeg -y && apt-get install sox -y && apt-get install jq -y
 
 # Install tini and create an unprivileged user
 ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /sbin/tini
@@ -44,13 +44,13 @@ RUN cd plda_bkp && pip --no-cache-dir install . && cd ..
 COPY --chown=elg:elg memad_lid_models /elg/memad_lid_models/
 
 COPY --chown=elg:elg classifier.py embedding_model.py feature_extraction.py generate_utts.sh lid_prediction_pipeline.py predict.sh \
-split_wav_to_segments_by2s.sh split_wav_to_segments.sh split_file_map.py utils.py docker-entrypoint.sh app.py utils.py metadata.py /elg/
+split_wav_to_segments_by2s.sh split_wav_to_segments.sh  predict_n_test_yle1.sh split_file_map.py utils.py docker-entrypoint.sh app.py evaluation.py metadata.py /elg/
 
 # Copy resources
 COPY --chown=elg:elg resources /elg/resources/
 
 ENV WORKERS=2
-ENV TIMEOUT=30
+ENV TIMEOUT=60
 ENV WORKER_CLASS=sync
 ENV LOGURU_LEVEL=INFO
 
