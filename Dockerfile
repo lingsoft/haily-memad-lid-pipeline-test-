@@ -23,21 +23,23 @@ USER elg:elg
 
 WORKDIR /elg
 
-
-
 # Create a Python virtual environment for the dependencies
-# RUN python -m venv venv 
+ENV VIRTUAL_ENV=/elg/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 # RUN /elg/venv/bin/python -m pip install --upgrade pip
-RUN  pip install --upgrade pip
 # RUN venv/bin/pip --no-cache-dir install -r requirements.txt && \
 #   venv/bin/pip --no-cache-dir install lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox && \
 #   venv/bin/pip --no-cache-dir install tensorflow && venv/bin/pip --no-cache-dir install elg && venv/bin/pip --no-cache-dir install "elg[flask]"
 
+RUN  pip install --upgrade pip
 RUN pip --no-cache-dir install -r requirements.txt && \
   pip --no-cache-dir install lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox && \
   pip --no-cache-dir install tensorflow && pip --no-cache-dir install elg && pip --no-cache-dir install "elg[flask]"
 
 # Install plda
+# RUN cd plda_bkp && /elg/venv/bin/pip --no-cache-dir install . && cd ..
 RUN cd plda_bkp && pip --no-cache-dir install . && cd ..
 
 # Copy ini the entrypoint script and everything else our app needs
@@ -53,7 +55,7 @@ ENV WORKERS=2
 ENV TIMEOUT=60
 ENV WORKER_CLASS=sync
 ENV LOGURU_LEVEL=INFO
-
+ENV PYTHON_PATH=${VIRTUAL_ENV}/bin
 
 RUN chmod +x ./docker-entrypoint.sh
 ENTRYPOINT ["./docker-entrypoint.sh"]
