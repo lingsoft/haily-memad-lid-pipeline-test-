@@ -3,6 +3,7 @@ import utils
 # from elg_adaptor import RequestUploadedFileSizeTooLarge, AnnotationsResponse, RequestTypeUnsupport, RequestInvalid, AudioRequestUnsupportedAudioFormat, AudioRequestUnsupportedSampleRate
 from elg import FlaskService
 from elg.model import Failure, AudioRequest, AnnotationsResponse, Annotation
+from elg.model.base import StandardMessages
 
 import os
 import shutil # for housekeeping of files and dir created during audio processing
@@ -58,7 +59,9 @@ class MemadLID(FlaskService):
         return AnnotationsResponse(annotations=prediction)
       except Exception as e:
         shutil.rmtree(audio_dir)
-        return Failure(errors=[e])
+        detail = {'server error': str(e)}
+        error = StandardMessages.generate_elg_service_internalerror(detail=detail)
+        return Failure(errors=[error])
 
 
 memad_lid_service = MemadLID("memad-lid-service")
