@@ -313,9 +313,4 @@ This is a truncated version of json response
 }
 ```
 
-### Test the docker container
-```
-python3 elg_test.py
-```
-
 
