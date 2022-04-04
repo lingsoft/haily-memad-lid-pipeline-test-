@@ -20,7 +20,8 @@ np_rng = np.random.default_rng(1)
 tf.random.set_seed(np_rng.integers(0, tf.int64.max))
 
 if len(sys.argv) < 3:
-    sys.exit("Please give configuration file and data source file as arguments.")
+    sys.exit(
+        "Please give configuration file and data source file as arguments.")
 
 ### Since I had multiple separate scripts with, I used a separate configuration file
 ### to define paths in one place. Replace with hardcoded path strings if you want.
@@ -39,12 +40,12 @@ os.makedirs(cachedir, exist_ok=True)
 #gpus = tf.config.experimental.list_physical_devices("GPU")
 #assert bool(gpus) == True, "No GPU available!"
 
-
 ### Read trained backend models from disk
 skl_objects = classifier.pipeline_from_disk(modeldir)
 scaler = skl_objects["scaler"]
 dim_reducer = skl_objects["dim_reducer"]
 nb_clf = skl_objects["nb_classifier"]
+
 
 ### These two functions are here because I am not familiar enough with Tensorflow logic to be able
 ### to pass the embedding model 'extractor' as an argument instead of global variable. There was
@@ -68,32 +69,24 @@ def pipeline_from_meta(data, split):
         data = data.sample(frac=1, random_state=np_rng.bit_generator)
 
     print("Read audio in...")
-    ds = tf.data.Dataset.from_tensor_slices(fe.metadata_to_dataset_input(data)).map(
-        fe.read_audio, num_parallel_calls=TF_AUTOTUNE
-    )
+    ds = tf.data.Dataset.from_tensor_slices(
+        fe.metadata_to_dataset_input(data)).map(fe.read_audio,
+                                                num_parallel_calls=TF_AUTOTUNE)
 
     print("Extract embeddings...")
     if split == "train":
-        ds = (
-            ds.prefetch(1000)
-            .apply(fe.create_chunks)
-            .batch(128)
-            .map(batch_extract_embeddings, num_parallel_calls=TF_AUTOTUNE)
-            .unbatch()
-            .map(to_pair, num_parallel_calls=TF_AUTOTUNE)
-        )
+        ds = (ds.prefetch(1000).apply(fe.create_chunks).batch(128).map(
+            batch_extract_embeddings,
+            num_parallel_calls=TF_AUTOTUNE).unbatch().map(
+                to_pair, num_parallel_calls=TF_AUTOTUNE))
     else:
-        ds = (
-            ds.apply(fe.create_chunks)
-            .batch(128)
-            .map(batch_extract_embeddings, num_parallel_calls=TF_AUTOTUNE)
-            .unbatch()
-            .map(to_pair, num_parallel_calls=TF_AUTOTUNE)
-            .prefetch(1000)
-        )
+        ds = (ds.apply(fe.create_chunks).batch(128).map(
+            batch_extract_embeddings,
+            num_parallel_calls=TF_AUTOTUNE).unbatch().map(
+                to_pair, num_parallel_calls=TF_AUTOTUNE).prefetch(1000))
     ids = []
     embeddings = []
-    
+
     for i, embedding in ds.as_numpy_iterator():
         ids.append(i.decode("utf-8"))
         embeddings.append(embedding.astype(np.float32))
@@ -134,8 +127,7 @@ embs["group"] = embs.sort_index().groupby(get_parent_id).ngroup()
 meta["group"] = meta.groupby("id").ngroup()
 embs = embs.reset_index().merge(meta, how="left", on="group").set_index("id")
 assert not embs.embedding.isna().any(
-    axis=None
-), "Missing embeddings, some rows contained NaN values"
+    axis=None), "Missing embeddings, some rows contained NaN values"
 
 ### Extract embeddings as numpy arrays for the sklearn models
 data_X, data_y = classifier.embeddings_as_numpy_data(embs)
@@ -156,6 +148,7 @@ predictions = nb_clf.predict_log_proba(data_X)
 ### Clamp -infs to -100
 predictions = np.maximum(-100, predictions)
 
+
 ### Predictions are computed for 2 second chunks, now calculate the average of the chunks
 ### for each input audio
 def average_chunk_predictions(rows):
@@ -165,12 +158,16 @@ def average_chunk_predictions(rows):
 
 
 chunk_ids = embs.index.tolist()
-result = pd.DataFrame.from_dict({"id": chunk_ids, "nb_pred": predictions.tolist()}).set_index("id")
-result = result.sort_index().groupby(get_parent_id).agg({"nb_pred": average_chunk_predictions})
+result = pd.DataFrame.from_dict({
+    "id": chunk_ids,
+    "nb_pred": predictions.tolist()
+}).set_index("id")
+result = result.sort_index().groupby(get_parent_id).agg(
+    {"nb_pred": average_chunk_predictions})
 result = result.assign(corpus_dir=meta.corpus_dir)
 
 ### Write result to an 'utt2lang' file where each utterance id is paired with the predicted
-### language for that utterance id 
+### language for that utterance id
 target2lang = {target: lang for lang, target in lang2target.items()}
 result.nb_pred = result.nb_pred.apply(lambda x: target2lang[x])
 
@@ -179,4 +176,3 @@ for ids, corpus in result.groupby("corpus_dir"):
     print(f"Writing language predictions for {cdir} to an utt2lang file.")
     #corpus["nb_pred"].to_csv(f"{cdir}/{splits[0]}/utt2lang", sep=" ", header=False)
     corpus["nb_pred"].to_json(f"{cdir}/{splits[0]}/utt2lang.json")
-

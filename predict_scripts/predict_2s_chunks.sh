@@ -14,7 +14,7 @@ rm -rf $OUTDIR/*.wav
 rm -rf $OUTDIR/predict/
 
 echo "\n******************\nSplitting audio file into files of 2 second each\n********************\n"
-sh $main_dir/split_wav_to_segments_by2s.sh $WAV $OUTDIR $main_dir
+sh $main_dir/utils/split_wav_to_segments_by2s.sh $WAV $OUTDIR $main_dir
 # remove the last line
 # echo "\n******************\nRemove the last file which is less than 2 seconds\n********************\n"
 # rm -i -- "$(LC_CTYPE=C ls -t $OUTDIR | head -1)"
@@ -22,7 +22,7 @@ sh $main_dir/split_wav_to_segments_by2s.sh $WAV $OUTDIR $main_dir
 # 
 echo "\n******************\nGenerating uttlabel and uttpath\n********************\n"
 if test -f "$maindir/utt2*"; then rm -r $maindir/utt2*; fi
-sh $main_dir/generate_utts.sh $OUTDIR
+sh $main_dir/utils/generate_utts.sh $OUTDIR
 
 # 
 echo "\n******************\nCopy utt* files into new directory predict under $OUTDIR\n********************\n"
@@ -33,5 +33,5 @@ echo $OUTDIR > paths.txt
 
 # 
 echo "\n******************\nRunning prediction\n********************\n"
-python3 $main_dir/lid_prediction_pipeline.py $main_dir/resources/prediction_sample.toml paths.txt
+python3 $main_dir/utils/lid_prediction_pipeline.py $main_dir/resources/prediction_sample.toml paths.txt
 

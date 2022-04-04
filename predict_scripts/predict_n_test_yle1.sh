@@ -42,10 +42,10 @@ if [ ! -d $audio_dir ]
   mkdir $audio_dir
 fi
 echo "************Saving splited files into $audio_dir************\n"
-bash ./split_wav_to_segments.sh $wav $anno $audio_dir
+bash ./predict_scripts/split_wav_to_segments.sh $wav $anno $audio_dir
 
 echo "************Generate meta data************\n"
-sh ./generate_utts.sh  $audio_dir
+sh ./utils/generate_utts.sh  $audio_dir
 mkdir -p $audio_dir/predict
 mv utt2* $audio_dir/predict/
 
@@ -54,10 +54,10 @@ rm -rf paths.txt || echo "no paths.txt file to remove"
 echo $audio_dir > paths.txt
 
 echo "************Predict labels with memad************\n"
-python3 lid_prediction_pipeline.py ./resources/prediction_sample.toml paths.txt
+python3 ./utils/lid_prediction_pipeline.py ./resources/prediction_sample.toml paths.txt
 
 echo "************Calculate metrics************\n"
-python3 evaluation.py $audio_dir/predict/utt2lang.json
+python3 ./utils/evaluation.py $audio_dir/predict/utt2lang.json
 
 
 

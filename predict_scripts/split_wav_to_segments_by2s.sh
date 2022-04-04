@@ -23,5 +23,5 @@ ffmpeg -i $WAV -f segment -segment_list_type csv -segment_list segments.csv -seg
 #format: MEDIA_2018_01414607_00.wav,0.000000,2.005333
 
 ## change name of MEDIA_2018_01414607_722.wav into the format of MEDIA_2018_01414607_722.wav 
-python3 $MAINDIR/split_file_map.py $OUTPUT_DIR
+python3 $MAINDIR/utils/split_file_map.py $OUTPUT_DIR
 
