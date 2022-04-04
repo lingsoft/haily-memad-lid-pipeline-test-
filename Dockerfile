@@ -12,11 +12,10 @@ RUN addgroup --gid 1001 "elg" && adduser --disabled-password --gecos "ELG User,,
 
 
 # Copy in just the requirements file
-COPY --chown=elg:elg requirements.txt  /elg/
+COPY --chown=elg:elg requirements.txt /elg/
 
 # Copy plda_bkp
 COPY --chown=elg:elg plda_bkp /elg/plda_bkp/
-
 
 # Everything from here down runs as the unprivileged user account
 USER elg:elg
@@ -28,28 +27,22 @@ ENV VIRTUAL_ENV=/elg/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# RUN /elg/venv/bin/python -m pip install --upgrade pip
-# RUN venv/bin/pip --no-cache-dir install -r requirements.txt && \
-#   venv/bin/pip --no-cache-dir install lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox && \
-#   venv/bin/pip --no-cache-dir install tensorflow && venv/bin/pip --no-cache-dir install elg && venv/bin/pip --no-cache-dir install "elg[flask]"
-
-RUN  pip install --upgrade pip
-RUN pip --no-cache-dir install -r requirements.txt && \
-  pip --no-cache-dir install lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox && \
-  pip --no-cache-dir install tensorflow && pip --no-cache-dir install elg && pip --no-cache-dir install "elg[flask]"
+RUN  pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt && \
+  pip install --no-cache-dir lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox && \
+  pip install --no-cache-dir tensorflow
 
 # Install plda
 # RUN cd plda_bkp && /elg/venv/bin/pip --no-cache-dir install . && cd ..
-RUN cd plda_bkp && pip --no-cache-dir install . && cd ..
+RUN cd plda_bkp && pip install --no-cache-dir . && cd ..
 
 # Copy ini the entrypoint script and everything else our app needs
 COPY --chown=elg:elg memad_lid_models /elg/memad_lid_models/
-
-COPY --chown=elg:elg classifier.py embedding_model.py feature_extraction.py generate_utts.sh lid_prediction_pipeline.py predict.sh \
-split_wav_to_segments_by2s.sh split_wav_to_segments.sh  predict_n_test_yle1.sh split_file_map.py utils.py docker-entrypoint.sh app.py evaluation.py metadata.py /elg/
-
-# Copy resources
 COPY --chown=elg:elg resources /elg/resources/
+COPY --chown=elg:elg predict_scripts /elg/predict_scripts/
+COPY --chown=elg:elg utils /elg/utils/
+
+COPY --chown=elg:elg app.py docker-entrypoint.sh utils.py  /elg/
 
 ENV WORKERS=2
 ENV TIMEOUT=60
