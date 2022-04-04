@@ -301,8 +301,8 @@ This is a truncated version of json response
          ],
          "reports":[
             {
-               "start":0,
-               "end":99999,
+               "start":4.15,
+               "end":420.07,
                "features":{
                   "report":"Out of 56 annotations, there are 31 annotation correctly predicted by memad\nThere are 0 correct de annotations\nThere are 0 correct en annotations\nThere are 23 correct fi annotations\nThere are 6 correct sv annotations\nThere are 2 correct x-nolang annotations\n              precision    recall  f1-score   support\n\n          de       0.00      0.00      0.00         0\n          en       0.00      0.00      0.00         0\n          fi       0.77      0.79      0.78        29\n          sv       0.75      0.32      0.44        19\n    x-nolang       0.67      0.25      0.36         8\n\n    accuracy                           0.55        56\n   macro avg       0.44      0.27      0.32        56\nweighted avg       0.75      0.55      0.61        56\n"
                }

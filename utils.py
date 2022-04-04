@@ -40,8 +40,8 @@ def predict(audio_save_path, lang_segments_path):
             data = json.load(json_file)
 
         results = [{
-            "start": int(seg.split('_')[0]) * 1.0 / 1000,
-            "end": int(seg.split('_')[1]) * 1.0 / 1000,
+            "start": float(seg.split('_')[0]) * 1.0 / 1000,
+            "end": float(seg.split('_')[1]) * 1.0 / 1000,
             "features": {
                 "lang": lang,
                 "true_label": seg.split('_')[2]
@@ -54,8 +54,8 @@ def predict(audio_save_path, lang_segments_path):
             report = rp.read()
 
         report_obj = {
-            "start": int(results[0]["start"]),
-            "end": int(results[-1]["end"]),
+            "start": float(results[0]["start"]),
+            "end": float(results[-1]["end"]),
             "features": {
                 "report": report
             }
