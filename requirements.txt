@@ -6,3 +6,4 @@ PyYAML
 pathlib==1.0.1
 gunicorn==20.1.0
 elg[flask]
+mutagen==1.45.1
