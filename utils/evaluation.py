@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     pred, true = np.array(pred), np.array(true)
     accuracy = f'Out of {len(pred)} annotations, \
-        there are {sum(pred==true)} annotation correctly predicted by memad'
+        there are {sum(pred==true)} annotations correctly predicted by memad'
 
     in_details = "\n".join(
         f'There are {sum(p==t==id for p,t in zip(pred,true))} correct\

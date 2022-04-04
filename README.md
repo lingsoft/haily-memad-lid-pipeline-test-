@@ -1,64 +1,74 @@
-# Introduction
-MeMAD spoken language identification (LID) pipeline verification and testing\
-Current support languages: fi sv fr de en x-nolang\
-Input: audio + annotation file/diarization json\
-Output: spoken language segmentation results\
-Credits and more information about the original pipeline is available [here](https://github.com/MeMAD-project/memad-lid-pipeline), models used in the pipeline [here](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)\
-In general:
-- Pass input audio into diarization and ASR system to obtain audio segmentation according to speaker changes
-- Audio file and diarization file then goes to the Memad LID pipeline, output is ELG json response which contains identified languages of different segments and also Memad performance report.
+# ELG API for Memad lidbox language identification pipeline
 
-## General setup
-You will need:
-- python3.7
+This git repository contains [ELG compatible](https://european-language-grid.readthedocs.io/en/stable/all/A3_API/LTInternalAPI.html) Flask based REST API for [MeMAD](https://memad.eu) language identification project.
+
+
+The ELG API was developed based on the project [memad-lang-pipeline](https://github.com/MeMAD-project/memad-lang-pipeline), the author of the pipeline is [LimeCraft](https://www.limecraft.com/team/) while the tool [lidbox](https://github.com/py-lidbox/lidbox) is developed by Matias Lindgren with MIT license. The API is in EU's CEF project: [Microservices at your service](https://www.lingsoft.fi/en/microservices-at-your-service-bridging-gap-between-nlp-research-and-industry).
+
+
+## Use cases
+The API can identify these languages: fi, sv, fr, de, en, and x-nolang (denotes no language detected).
+The pipeline works in two scenarios:
+- if there is an audio file in the request, the API splits the input audio into 2 seconds chunks and predicts corresponding spoken languages.
+- if there is an audio file and corresponding annotation/diarization json text in the request, the API returns prediction results and reports the classification metrics. This works like testing the lidbox tool. 
+
+## General setup for local use
+The pipeline needs:
+- python3.7+
 - lidbox
-- plda
+- [plda](https://github.com/RaviSoji/plda): 
 - transformer
-- memad lid models [here](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)
+- memad lang [models](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)
+
 
 Install dependencies
-```shell
+
+```
 python3 -m venv venv && source venv/bin/activate
 pip install -r requiremets.txt
 ```
 
 Install Lidbox
-```shell
+
+```
 pip install lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox
 ```
 
 Install plda
-```shell
+
+```
 cd plda_bkp
 pip install .
 ```
 
 Install tensorflow
-```shell
+
+```
 pip install tensorflow
 ```
 
-## Yle Data evaluation:
-If you are interested in Yle dataset with an experimental license, reference [here](https://developer.yle.fi/en/data/avdata/index.html)
+## Yle Data evaluation example
+The Yle dataset with an experimental license is available upon request [here](https://developer.yle.fi/en/data/avdata/index.html). Dataset 1 contains Audio files (12.7 hours of media), subtitles and ground truth transcripts, speaker diarizations, and NER annotations of 16 factual programs in Finnish and Swedish.
 
-Yle data contain audio + diarization in json format.
+The Yle dataset 1 will have the following structure
 
-Take example for an audio file with name MEDIA_2014_00868316.wav 
-
-YLE1 data set should have the following structure
-```shell
+```
 audios/yle_1/part2
 ├── audio
 │   ├── MEDIA_2014_00868316.utt2label
 │   └── MEDIA_2014_00868316.wav
 └── readme_and_licence.txt
 ```
-Convert utt2label into diarization that memad needs
-```shell
-python3 raw2json.py audios/yle_1/part2/audio/MEDIA_2014_00868316.utt2label 
+
+There is a `raw2json` script to convert utt2label format into json format of diarization that memad needs
+
 ```
-Previous dir tree should look like
-```shell
+python3 utils/raw2json.py audios/yle_1/part2/audio/MEDIA_2014_00868316.utt2label 
+```
+
+After the conversion, the previous directory tree now looks like
+
+```
 audios/yle_1/part2
 ├── anno
 │   ├── MEDIA_2014_00868316-diar.json
@@ -68,20 +78,24 @@ audios/yle_1/part2
 │   └── MEDIA_2014_00868316.wav
 └── readme_and_licence.txt
 ```
-`MEDIA_2014_00868316-diar.json` is converted from true label file `MEDIA_2014_00868316.utt2label` using `raw2json.py` with the following script:
 
-Run prediction pipeline with 2 arguments: input audio file and its corresponding annotation file for splitting. 
-```shell
-sh predict_n_test_yle1.sh audios/yle_1/part2/audio/MEDIA_2014_00868316.wav audios/yle_1/part2/anno/MEDIA_2014_00868316-diar.json
+Then use the `predict_n_test_yle1.sh` bash script to predict and report the classification results of the Yle dataset 1.
+
 ```
-Results should be under `report.txt` report file.
-```shell
+sh predict_scripts/predict_n_test_yle1.sh audios/yle_1/part2/audio/MEDIA_2014_00868316.wav audios/yle_1/part2/anno/MEDIA_2014_00868316-diar.json
+```
+
+Results should be under `report.txt` file.
+
+```
 audios/yle_1/part2/audio/MEDIA_2014_00868316/report
 └── report.txt
 ```
+
 Content of report.txt
+
 ```
-Out of 56 annotations, there are 31 annotation correctly predicted by memad
+Out of 56 annotations, there are 31 annotations correctly predicted by memad
 There are 0 correct de annotations
 There are 0 correct en annotations
 There are 23 correct fi annotations
@@ -101,11 +115,9 @@ weighted avg       0.75      0.55      0.61        56
 ```
 
 ## VOX dev data evaluation
-VOX [dev](http://bark.phon.ioc.ee/voxlingua107/dev.zip)
-This development set (dev.zip) contains 1609 speech segments from 33 languages, validated by at least two volunteers to really contain the given language.
-We took out only 5 languages that Memad-lid project supports.
-For example with VOX data structure as follow:
-```shell
+VOX [dev](http://bark.phon.ioc.ee/voxlingua107/dev.zip) dataset contains 1609 speech segments from 33 languages, validated by at least two volunteers. It includes 5 languages that memad lang pipeline supports.
+For example, with VOX data structured as follow:
+```
 audios/VOX
 └── dev
     ├── de
@@ -114,12 +126,16 @@ audios/VOX
     ├── fr
     └── sv
 ```
-where each `de` subdir contains audios of that language, the dir name is also labels of audios inside.
+where each subdir contains audios of that language, the directory name is also the label of all audios file inside it.
 
-```shell
-sh predict_n_test.sh audios/VOX
+Run the evaluation on VOX dataset
+
 ```
-Result of Swedish case
+sh predict_scripts/predict_n_test.sh audios/VOX
+```
+
+Example result of the Swedish langauge case
+
 ```
 --lang sv
 Total audios:  100
@@ -134,178 +150,109 @@ Classification report:
 weighted avg       1.00      0.49      0.66       100
 ```
 
-# MEMAD pipeline API Service, ELG compatible
+## Local development
 
-## Introduction
-Spoken Language Identification API compatible with [ELG](https://european-language-grid.readthedocs.io/en/latest/all/A2_API/LTInternalAPI.html#audio-requests)
-
-## Start API service
-```shell
-export FLASK_APP=app
-flask run --host 0.0.0.0 --port <port>
+Start the local development app
 ```
-Optional:
-putting in debug mode with 
-```shell
-export FLASK_ENV=development
+FLASK_ENV=development flask run --host 0.0.0.0 --port 8000
 ```
 
-## API Endpoints Description, follow ELG format
-with WAV format input audio
-### Audio Request 
-More about ELG required multipart/form-data API request in [multi_form_req.py](multi_form_req.py)
-POST requests in the following structure
-```json
+## Building the docker image
+
+```
+docker build -t memad-lidbox-pipeline-elg .
+```
+
+Or pull directly ready-made image `docker pull lingsoft/memad-lidbox-pipeline:tagname`.
+
+## Deploying the service
+
+```
+docker run -d -p <port>:8000 --init --memory="2g" --restart always memad-lidbox-pipeline-elg
+```
+
+## REST API
+The ELG Audio service accepts POST requests of Content-Type: multipart/form-data with two parts, the first part with name `request` has type: `application/json`, and the second part with name `content` will be audio/x-wav type which contains the actual audio data file.
+
+### Call pattern
+
+#### URL
+
+```
+http://<host>:<port>/process
+```
+
+place `<host>` and `<port>` with the hostname and port where the 
+service is running.
+
+#### HEADERS
+
+```
+Content-type : multipart/form-data
+```
+
+#### BODY
+
+Part 1 with the name `request`
+
+```
 {
   "type":"audio",
-  "params":{...}, // optional
-  "format":"string", // LINEAR16 for WAV
-  "sampleRate":number, // 16000
-  "features":{ /* arbitrary JSON metadata about this content, optional */ },
-  "annotations":{ /* optional */
-    "<annotation type>":[
-      {
-        "start":number,
-        "end":number,
-        "features":{ /* arbitrary JSON */ }
-      }
-    ]
-  }
+  "format":"string",
+  "sampleRate":number,
+  "annotations": "object",
 }
 ```
-MeMAD API supports `LINEAR16` audio format with `16000`sample rate
-### Successful response
-Annotation response from the API which splits input audio into every 2 seconds chunk and predict spoken languages (fi, sv, de, fr, x-nolang,)
-```json
+
+The property `format` is required and `LINEAR16` value is expected while the property `sampleRate` and `annotations` are optional. For the second use case (see section [use-case](#use-cases), `annotations` is required and should contain annotation data as shown in `multi_form_req.py`
+
+Part 2 with the name `content`
+- read in the audio file content
+- maximum file size support: 100MB
+- `WAV`format only, with an expected 16khz sample rate and a 16-bit sample size.
+
+
+#### RESPONSE
+
+```
 {
    "response":{
       "type":"annotations",
       "annotations":{
          "spoken_language_identification":[
             {
-               "start":0,
-               "end":2,
+               "start":number,
+               "end":number,
                "features":{
-                  "SLI":"fi"
+                  "lang":str
                }
             },
-            {
-               "start":2,
-               "end":4,
-               "features":{
-                  "SLI":"fi"
-               }
-            },
-            {
-               "start":4,
-               "end":6,
-               "features":{
-                  "SLI":"fi"
-               }
-            },
-            {
-               "start":6,
-               "end":8,
-               "features":{
-                  "SLI":"fi"
-               }
-            },
-            {
-               "start":8,
-               "end":10,
-               "features":{
-                  "SLI":"fi"
-               }
-            },
-            {
-               "start":10,
-               "end":12,
-               "features":{
-                  "SLI":"fi"
-               }
-            },
-            {
-               "start":12,
-               "end":14,
-               "features":{
-                  "SLI":"fi"
-               }
-            },
-            {
-               "start":14,
-               "end":16,
-               "features":{
-                  "SLI":"fi"
-               }
-            },
-            {
-               "start":16,
-               "end":18,
-               "features":{
-                  "SLI":"fi"
-               }
-            }
          ]
       }
    }
-}
+}     
 ```
 
-### Failure response
- ```json
-{
-  "failure":{
-    "errors":[
-      {
-        "code":"elg error type code",
-        "text":"elg error type related text",
-        "params":[],
-        "detail":{"Some detail error msg"}
-      },
-    ]
-  }
-}
+### Response structure
+
+- `start` and `end` (float)
+  - the time indices of the recognized language parts (in second). If use case 1, each start and end pair has a time interval of 2 seconds.
+- `lang` (str)
+  - the corresponding identified language. Only one language returns
+
+### Example call
+
+The script `multi_form_req.py` sends multipart/form-data POST request with the audio file `MEDIA_2014_00868316.wav` from the Yle dataset 1 and corresponding converted annotation json `MEDIA_2014_00868316-diar.json`.
+
 ```
-with WAV format input audio + annotation json file
-### Audio request
-```shell
 python3 multi_form_req.py
 ```
-The script sends multipart/form-data POST request with the audio file `MEDIA_2014_00868316.wav` and annotation json `MEDIA_2014_00868316-diar.json`.
-Example annotation file
-```json
-[
-  {
-    "id": "x-nolang",
-    "start": "4.15",
-    "end": "4.92"
-  },
-  {
-    "id": "x-nolang",
-    "start": "15.73",
-    "end": "16.29"
-  },
-  {
-    "id": "x-nolang",
-    "start": "20.39",
-    "end": "20.78"
-  },
-  {
-    "id": "sv",
-    "start": "23.36",
-    "end": "25.235"
-  },
-  {
-    "id": "fi",
-    "start": "25.235",
-    "end": "26.735"
-  },
-]
+
+### Response should be
+
+This is a truncated version of json response
+
 ```
-
-
-### Successful response (truncated)
-```json
 {
    "response":{
       "type":"annotations",
@@ -315,7 +262,7 @@ Example annotation file
                "start":4.15,
                "end":4.92,
                "features":{
-                  "LID":"en",
+                  "lang":"en",
                   "true_label":"x-nolang"
                }
             },
@@ -323,7 +270,7 @@ Example annotation file
                "start":15.73,
                "end":16.29,
                "features":{
-                  "LID":"x-nolang",
+                  "lang":"x-nolang",
                   "true_label":"x-nolang"
                }
             },
@@ -331,7 +278,7 @@ Example annotation file
                "start":20.39,
                "end":20.78,
                "features":{
-                  "LID":"x-nolang",
+                  "lang":"x-nolang",
                   "true_label":"x-nolang"
                }
             },
@@ -339,7 +286,7 @@ Example annotation file
                "start":23.36,
                "end":25.235,
                "features":{
-                  "LID":"x-nolang",
+                  "lang":"x-nolang",
                   "true_label":"sv"
                }
             },
@@ -347,7 +294,7 @@ Example annotation file
                "start":25.235,
                "end":26.735,
                "features":{
-                  "LID":"en",
+                  "lang":"en",
                   "true_label":"fi"
                }
             },
@@ -366,18 +313,8 @@ Example annotation file
 }
 ```
 
-
-## To use the API with docker
-### Build the docker image
-```shell
-docker build . -t memad-api
-```
-### Run the docker based on recent created image tagged with name: memad-api
-```shell
-docker run --rm -p 3000:8000 memad-api
-```
 ### Test the docker container
-```shell
+```
 python3 elg_test.py
 ```
 
