@@ -3,7 +3,7 @@
 This git repository contains [ELG compatible](https://european-language-grid.readthedocs.io/en/stable/all/A3_API/LTInternalAPI.html) Flask based REST API for [MeMAD](https://memad.eu) language identification project.
 
 
-The ELG API was developed based on the project [memad-lang-pipeline](https://github.com/MeMAD-project/memad-lang-pipeline), the author of the pipeline is [LimeCraft](https://www.limecraft.com/team/) while the tool [lidbox](https://github.com/py-lidbox/lidbox) is developed by Matias Lindgren with MIT license. The API is in EU's CEF project: [Microservices at your service](https://www.lingsoft.fi/en/microservices-at-your-service-bridging-gap-between-nlp-research-and-industry).
+The ELG API was developed based on the project [memad-lid-pipeline](https://github.com/MeMAD-project/memad-lid-pipeline), the author of the pipeline is [LimeCraft](https://www.limecraft.com/team/) while the tool [lidbox](https://github.com/py-lidbox/lidbox) is developed by Matias Lindgren with MIT license. The API is in EU's CEF project: [Microservices at your service](https://www.lingsoft.fi/en/microservices-at-your-service-bridging-gap-between-nlp-research-and-industry).
 
 
 ## Use cases
@@ -18,7 +18,7 @@ The pipeline needs:
 - lidbox
 - [plda](https://github.com/RaviSoji/plda): 
 - transformer
-- memad lang [models](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)
+- memad lid [models](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)
 
 
 Install dependencies
@@ -115,7 +115,7 @@ weighted avg       0.75      0.55      0.61        56
 ```
 
 ## VOX dev data evaluation
-VOX [dev](http://bark.phon.ioc.ee/voxlingua107/dev.zip) dataset contains 1609 speech segments from 33 languages, validated by at least two volunteers. It includes 5 languages that memad lang pipeline supports.
+VOX [dev](http://bark.phon.ioc.ee/voxlingua107/dev.zip) dataset contains 1609 speech segments from 33 languages, validated by at least two volunteers. It includes 5 languages that memad lid pipeline supports.
 For example, with VOX data structured as follow:
 ```
 audios/VOX
