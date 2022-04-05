@@ -1,6 +1,5 @@
 import unittest
 import json
-from numpy import true_divide
 import requests
 import os
 import time

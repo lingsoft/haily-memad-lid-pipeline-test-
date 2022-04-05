@@ -11,14 +11,16 @@ np_rng = np.random.default_rng(1)
 
 
 def embeddings_as_numpy_data(df):
-    """Transform embedding vectors in Pandas dataframe into numpy arrays for sklearn."""
+    """Transform embedding vectors in Pandas dataframe into numpy
+    arrays for sklearn."""
     X = np.stack(df.embedding.values).astype(np.float32)
     y = df.target.to_numpy(dtype=np.int32)
     return X, y
 
 
 def random_sample(X, y, sample_size_ratio):
-    """Random sampling from numpy arrays with given ratio. Used mainly in visualizations."""
+    """Random sampling from numpy arrays with given ratio.
+    Used mainly in visualizations."""
     N = X.shape[0]
     sample_size = int(sample_size_ratio * N)
     sample_idx = np_rng.choice(np.arange(N), size=sample_size, replace=False)
@@ -38,7 +40,8 @@ def pipeline_to_disk(joblib_dir, sklearn_objects):
 def pipeline_from_disk(joblib_dir):
     """Load trained sklearn model from disk."""
     if not os.path.isdir(joblib_dir):
-        print(f"Directory '{joblib_dir}' does not exist, cannot load pipeline from disk")
+        print(f"Directory '{joblib_dir}' does not exist, cannot\
+                load pipeline from disk")
         return {}
     sklearn_objects = {}
     for f in os.scandir(joblib_dir):
@@ -53,10 +56,10 @@ def pipeline_from_disk(joblib_dir):
 def generate_lang2target(meta, langs):
     """
     Generate a unique language-to-target mapping,
-    where integer targets are the enumeration of language labels in lexicographic order.
+    where integer targets are the enumeration of language
+    labels in lexicographic order.
     """
     label2target = collections.OrderedDict(
-            (l, t) for t, l in enumerate(sorted(langs)))
+        (l, t) for t, l in enumerate(sorted(langs)))
     meta["target"] = np.array([label2target[l] for l in meta.label], np.int32)
     return meta, label2target
-

@@ -39,9 +39,9 @@ def random_filter(x):
         b = np_rng.normal(0, 1, N)
         return scipy.signal.lfilter(b, 1.0, s).astype(np.float32), b
 
-    s, _ = tf.numpy_function(
-        scipy_filter, [x["signal"]], [tf.float32, tf.float64], name="np_random_filter"
-    )
+    s, _ = tf.numpy_function(scipy_filter, [x["signal"]],
+                             [tf.float32, tf.float64],
+                             name="np_random_filter")
     s = tf.cast(s, tf.float32)
     s = audio.peak_normalize(s, dBFS=-3.0)
     return dict(x, signal=s)
@@ -59,6 +59,7 @@ def sum_and_normalize(pred):
 
 
 def embeddings_to_dataframe(ids, embeddings):
-    return (pd.DataFrame.from_dict({"id": ids, "embedding": embeddings})
-            .set_index("id", drop=True, verify_integrity=True)
-            .sort_index())
+    return (pd.DataFrame.from_dict({
+        "id": ids,
+        "embedding": embeddings
+    }).set_index("id", drop=True, verify_integrity=True).sort_index())

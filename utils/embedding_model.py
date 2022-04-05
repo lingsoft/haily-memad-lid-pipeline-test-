@@ -27,27 +27,35 @@ STDDEV_SQRT_MIN_CLIP = 1e-10
 
 class GlobalMeanStddevPooling1D(Layer):
     """
-    Compute arithmetic mean and standard deviation of the inputs along the time steps dimension,
+    Compute arithmetic mean and standard deviation of
+    the inputs along the time steps dimension,
     then output the concatenation of the computed stats.
     """
-
     def call(self, inputs):
         means = tf.math.reduce_mean(inputs, axis=TIME_AXIS, keepdims=True)
-        variances = tf.math.reduce_mean(tf.math.square(inputs - means), axis=TIME_AXIS)
+        variances = tf.math.reduce_mean(tf.math.square(inputs - means),
+                                        axis=TIME_AXIS)
         means = tf.squeeze(means, TIME_AXIS)
         stddevs = tf.math.sqrt(
-            tf.clip_by_value(variances, STDDEV_SQRT_MIN_CLIP, variances.dtype.max)
-        )
+            tf.clip_by_value(variances, STDDEV_SQRT_MIN_CLIP,
+                             variances.dtype.max))
         return tf.concat((means, stddevs), axis=TIME_AXIS)
 
 
-def FrameLayer(
-    inputs, filters, kernel_size, stride, name="frame", activation="relu", dropout_rate=None
-):
+def FrameLayer(inputs,
+               filters,
+               kernel_size,
+               stride,
+               name="frame",
+               activation="relu",
+               dropout_rate=None):
     """Batch normalized temporal convolution"""
-    x = Conv1D(
-        filters, kernel_size, stride, name="{}_conv".format(name), activation=None, padding="same"
-    )(inputs)
+    x = Conv1D(filters,
+               kernel_size,
+               stride,
+               name="{}_conv".format(name),
+               activation=None,
+               padding="same")(inputs)
     x = BatchNormalization(name="{}_bn".format(name))(x)
     x = Activation(activation, name="{}_{}".format(name, str(activation)))(x)
     if dropout_rate:
@@ -55,7 +63,11 @@ def FrameLayer(
     return x
 
 
-def SegmentLayer(inputs, units, name="segment", activation="relu", dropout_rate=None):
+def SegmentLayer(inputs,
+                 units,
+                 name="segment",
+                 activation="relu",
+                 dropout_rate=None):
     """Batch normalized dense layer"""
     x = Dense(units, name="{}_dense".format(name), activation=None)(inputs)
     x = BatchNormalization(name="{}_bn".format(name))(x)
@@ -65,7 +77,10 @@ def SegmentLayer(inputs, units, name="segment", activation="relu", dropout_rate=
     return x
 
 
-def create(input_shape, num_outputs, output_activation="log_softmax", dropout_rate=None):
+def create(input_shape,
+           num_outputs,
+           output_activation="log_softmax",
+           dropout_rate=None):
     inputs = Input(shape=input_shape, name="input")
     x = inputs
 
@@ -83,9 +98,8 @@ def create(input_shape, num_outputs, output_activation="log_softmax", dropout_ra
 
     outputs = x
     if output_activation:
-        outputs = Activation(getattr(tf.nn, output_activation), name=str(output_activation))(
-            outputs
-        )
+        outputs = Activation(getattr(tf.nn, output_activation),
+                             name=str(output_activation))(outputs)
     return Model(inputs=inputs, outputs=outputs, name="x-vector-javascript")
 
 
@@ -103,4 +117,5 @@ def get_embedding_extractor(model_path):
     )
     xvec_layer = model.get_layer(name="segment1_dense")
     xvec_layer.activation = None
-    return model2function(tf.keras.Model(inputs=model.inputs, outputs=xvec_layer.output))
+    return model2function(
+        tf.keras.Model(inputs=model.inputs, outputs=xvec_layer.output))
