@@ -313,4 +313,20 @@ This is a truncated version of json response
 }
 ```
 
+## Test the service
+`test_samples` directory contains two audio files: `memad_test.wav` and `olen_kehittäjä.mp3` for testing purpose. `memad_test.wav` is a concatenated audio of five short independent samples in 'de', 'en', 'fi', 'fr', 'sv' languages taken from the VOX dev dataset. Here are the following sample files that were concatenated (in order):
+   - -7hqy7xahkM__U__S106---0752.680-0761.950.wav (de)
+   - _EHGqmRh9Es__U__S130---0840.140-0846.350.wav (en)
+   - 1WCI1U2iEGQ__U__S122---1453.730-1472.010.wav (fi)
+   - 0A42eBNqp2Q__U__S0---0753.910-0762.010.wav (fr)
+   - _8h3f0QoF5Q__U__S109---0347.590-0361.420.wav (sv)
 
+The true lables of `memad_test.wav` (see `test.py`) were manually annotated using Audacity software.
+
+`olen_kehittäjä.mp3` file was captured from Google translation text to speech fo the phrase "Olen kehittäjä" and used for testing wrong audio format purpose.
+
+To run test
+
+```
+python -m unittest test -v
+```
