@@ -163,7 +163,7 @@ FLASK_ENV=development flask run --host 0.0.0.0 --port 8000
 docker build -t memad-lidbox-pipeline-elg .
 ```
 
-Or pull directly ready-made image `docker pull lingsoft/memad-lidbox-pipeline:tagname`.
+Or pull directly ready-made image `docker pull lingsoft/memad-lidbox-pipeline:tagname`. (currently unavailable)
 
 ## Deploying the service
 
