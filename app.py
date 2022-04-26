@@ -41,7 +41,7 @@ class MemadLID(FlaskService):
                 detail={'audio': 'Audio is not in WAV format'})
             return Failure(errors=[err_msg])
 
-        logging.info('Sent audio info: ', audio_info.pprint())
+        logging.info(f'Sent audio info: {audio_info.pprint()}')
 
         audio_name = str(uuid.uuid4()) + '.wav'
 
@@ -53,7 +53,7 @@ class MemadLID(FlaskService):
         # Save audio file here
         with open(audio_save_path, 'wb') as fp:
             fp.write(audio_file)
-        logging.debug('audio save path %s', audio_save_path)
+        logging.debug(f'audio save path: {audio_save_path}')
         # If we get annotation file/ Annotation object in sent request
         if request.annotations is not None:
             lang_segments = request.annotations['lang_segments']
@@ -67,7 +67,7 @@ class MemadLID(FlaskService):
             # Save annotation here
             segment_save_path = os.path.join(curr_dir, 'raw', audio_name[:-4],
                                              audio_name[:-4] + '.json')
-            logging.debug('segment save path %s', segment_save_path)
+            logging.debug(f'segment save path: {segment_save_path}')
             with open(segment_save_path, 'w') as fp:
                 json.dump(lang_segments, fp)
 
