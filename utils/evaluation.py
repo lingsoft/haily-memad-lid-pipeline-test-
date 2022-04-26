@@ -24,13 +24,13 @@ if __name__ == '__main__':
         true.append(l2id[k.split('_')[-1].strip()])
 
     pred, true = np.array(pred), np.array(true)
-    accuracy = f'Out of {len(pred)} annotations, \
-        there are {sum(pred==true)} annotations correctly predicted by memad'
+    accuracy = f'Out of {len(pred)} annotations, there are {sum(pred==true)} annotations correctly predicted by memad'
 
     in_details = "\n".join(
-        f'There are {sum(p==t==id for p,t in zip(pred,true))} correct\
-            {lang} annotations' for id, lang in id2l.items())
-    rp = classification_report(true, pred, target_names=labels)
+        f'There are {sum(p==t==id for p,t in zip(pred,true))} correct {lang} annotations'
+        for id, lang in id2l.items())
+    rp = 'Classification report: ' + classification_report(
+        true, pred, target_names=labels)
 
     audio_dir = up(up(path))
     if not os.path.isdir(os.path.join(audio_dir, 'report')):
