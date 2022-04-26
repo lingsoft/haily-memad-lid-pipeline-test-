@@ -9,39 +9,10 @@ class TestResponseStucture(unittest.TestCase):
     url = 'http://localhost:8000/process'
     lang_codes = ('de', 'en', 'fi', 'fr', 'sv', 'x-nolang')
     audio = os.path.join(os.getcwd(), 'test_samples/memad_test.wav')
+    anno = os.path.join(os.getcwd(), 'test_samples/memad_test_anno.json')
 
-    true_labels = [
-        {
-            "id": "de",
-            "start": "2.297",
-            "end": "4.613"
-        },
-        {
-            "id": "x-nolang",
-            "start": "4.765",
-            "end": "9.278"
-        },
-        {
-            "id": "en",
-            "start": "9.297",
-            "end": "15.180"
-        },
-        {
-            "id": "fi",
-            "start": "15.958",
-            "end": "33.572"
-        },
-        {
-            "id": "fr",
-            "start": "34.570",
-            "end": "41.602"
-        },
-        {
-            "id": "sv",
-            "start": "42.058",
-            "end": "55.345"
-        },
-    ]
+    with open(anno, 'r') as f:
+        true_labels = json.load(f)
 
     def make_audio_req(self, audio, has_annot):
         """Prepare Audio Request based on

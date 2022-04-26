@@ -134,7 +134,7 @@ Run the evaluation on VOX dataset
 sh predict_scripts/predict_n_test.sh audios/VOX
 ```
 
-Example result of the Swedish langauge case
+Example result of the Swedish language case
 
 ```
 --lang sv
@@ -160,15 +160,15 @@ FLASK_ENV=development flask run --host 0.0.0.0 --port 8000
 ## Building the docker image
 
 ```
-docker build -t memad-lidbox-pipeline-elg .
+docker build -t memad-lidbox .
 ```
 
-Or pull directly ready-made image `docker pull lingsoft/memad-lidbox-pipeline:tagname`. (currently unavailable)
+Or pull directly ready-made image `docker pull lingsoft/memad-lidbox:tagname`. (currently unavailable)
 
 ## Deploying the service
 
 ```
-docker run -d -p <port>:8000 --init --memory="2g" --restart always memad-lidbox-pipeline-elg
+docker run -d -p <port>:8000 --init --memory="2g" --restart always memad-lidbox
 ```
 
 ## REST API
@@ -224,7 +224,8 @@ Part 2 with the name `content`
                "start":number,
                "end":number,
                "features":{
-                  "lang":str
+                  "lang":str,
+                  "true_label":str
                }
             },
          ]
@@ -239,82 +240,13 @@ Part 2 with the name `content`
   - the time indices of the recognized language parts (in second). If use case 1, each start and end pair has a time interval of 2 seconds.
 - `lang` (str)
   - the corresponding identified language. Only one language returns
+- `true_label` (str)
+   - the corresponding true label of language. One of these labels: 'de', 'en', 'fi', 'fr', 'sv', and 'x-nolang'. The property presents only when the corresponding annotation/diarization json text in the request is sent.
 
 ### Example call
 
-The script `multi_form_req.py` sends multipart/form-data POST request with the audio file `MEDIA_2014_00868316.wav` from the Yle dataset 1 and corresponding converted annotation json `MEDIA_2014_00868316-diar.json`.
-
-```
-python3 multi_form_req.py
-```
-
-### Response should be
-
-This is a truncated version of json response
-
-```
-{
-   "response":{
-      "type":"annotations",
-      "annotations":{
-         "spoken_language_identification":[
-            {
-               "start":4.15,
-               "end":4.92,
-               "features":{
-                  "lang":"en",
-                  "true_label":"x-nolang"
-               }
-            },
-            {
-               "start":15.73,
-               "end":16.29,
-               "features":{
-                  "lang":"x-nolang",
-                  "true_label":"x-nolang"
-               }
-            },
-            {
-               "start":20.39,
-               "end":20.78,
-               "features":{
-                  "lang":"x-nolang",
-                  "true_label":"x-nolang"
-               }
-            },
-            {
-               "start":23.36,
-               "end":25.235,
-               "features":{
-                  "lang":"x-nolang",
-                  "true_label":"sv"
-               }
-            },
-            {
-               "start":25.235,
-               "end":26.735,
-               "features":{
-                  "lang":"en",
-                  "true_label":"fi"
-               }
-            },
-         ],
-         "reports":[
-            {
-               "start":4.15,
-               "end":420.07,
-               "features":{
-                  "report":"Out of 56 annotations, there are 31 annotation correctly predicted by memad\nThere are 0 correct de annotations\nThere are 0 correct en annotations\nThere are 23 correct fi annotations\nThere are 6 correct sv annotations\nThere are 2 correct x-nolang annotations\n              precision    recall  f1-score   support\n\n          de       0.00      0.00      0.00         0\n          en       0.00      0.00      0.00         0\n          fi       0.77      0.79      0.78        29\n          sv       0.75      0.32      0.44        19\n    x-nolang       0.67      0.25      0.36         8\n\n    accuracy                           0.55        56\n   macro avg       0.44      0.27      0.32        56\nweighted avg       0.75      0.55      0.61        56\n"
-               }
-            }
-         ]
-      }
-   }
-}
-```
-
-## Test the service
-`test_samples` directory contains two audio files: `memad_test.wav` and `olen_kehittäjä.mp3` for testing purpose. `memad_test.wav` is a concatenated audio of five short independent samples in 'de', 'en', 'fi', 'fr', 'sv' languages taken from the VOX dev dataset. Here are the following sample files that were concatenated (in order):
+The script `multi_form_req.py` sends multipart/form-data POST request with the audio file under `test_samples/memad_test.wav`
+`memad_test.wav` is a concatenated audio of five short independent samples in 'de', 'en', 'fi', 'fr', 'sv' languages taken from the VOX dev dataset. Here are the following sample files that were concatenated (in order):
    - -7hqy7xahkM__U__S106---0752.680-0761.950.wav (de)
    - _EHGqmRh9Es__U__S130---0840.140-0846.350.wav (en)
    - 1WCI1U2iEGQ__U__S122---1453.730-1472.010.wav (fi)
@@ -323,7 +255,19 @@ This is a truncated version of json response
 
 The true lables of `memad_test.wav` (see `test.py`) were manually annotated using Audacity software.
 
-`olen_kehittäjä.mp3` file was captured from Google translation text to speech fo the phrase "Olen kehittäjä" and used for testing wrong audio format purpose.
+```
+python3 multi_form_req.py
+```
+
+### Response should be
+
+
+```
+
+```
+
+## Test the service
+`test_samples` directory contains two audio files: `memad_test.wav` and `olen_kehittäjä.mp3` for testing purpose `olen_kehittäjä.mp3` file was captured from Google translation text to speech fo the phrase "Olen kehittäjä" and used for testing wrong audio format purpose.
 
 To run test
 
