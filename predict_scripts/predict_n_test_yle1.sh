@@ -42,7 +42,7 @@ if [ ! -d $audio_dir ]
   mkdir $audio_dir
 fi
 echo "************Saving splited files into $audio_dir************\n"
-bash ./predict_scripts/split_wav_to_segments.sh $wav $anno $audio_dir
+bash ./utils/split_wav_to_segments.sh $wav $anno $audio_dir
 
 echo "************Generate meta data************\n"
 sh ./utils/generate_utts.sh  $audio_dir
