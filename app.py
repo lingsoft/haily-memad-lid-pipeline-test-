@@ -24,7 +24,7 @@ class MemadLID(FlaskService):
 
         # validating file size
         audio_file_size = sys.getsizeof(audio_file) / 1024
-        if audio_file_size == 0 or audio_file_size < 20:
+        if audio_file_size < 20:
             err_msg = StandardMessages.generate_elg_request_invalid(
                 detail={'audio': 'File is empty or too small'})
             return Failure(errors=[err_msg])

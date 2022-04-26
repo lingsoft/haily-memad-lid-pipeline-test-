@@ -2,7 +2,6 @@ import unittest
 import json
 import requests
 import os
-import time
 
 
 class TestResponseStucture(unittest.TestCase):
@@ -62,12 +61,10 @@ class TestResponseStucture(unittest.TestCase):
         files = self.make_audio_req(self.audio, has_annot=True)
         status_code = requests.post(self.url, files=files).status_code
         self.assertEqual(status_code, 200)
-        time.sleep(10)
 
     def test_api_response_result_with_full_request(self):
         """Should return ELG annotation response with original tinestamps
-        and true lables when given full request. Shoud return reports
-        key with correct start and end timestamp
+        and true lables when given full request.
         """
 
         files = self.make_audio_req(self.audio, has_annot=True)
@@ -89,16 +86,6 @@ class TestResponseStucture(unittest.TestCase):
                 ['spoken_language_identification'][id].get('end'),
                 float(true_obj['end']))
 
-        self.assertEqual(
-            response['response']['annotations']['reports'][0].get('start'),
-            float(self.true_labels[0]['start']))
-
-        self.assertEqual(
-            response['response']['annotations']['reports'][0].get('end'),
-            float(self.true_labels[-1]['end']))
-
-        time.sleep(10)
-
     def test_api_response_too_small_audio_request(self):
         """Service should return ELG failure when
         too small audio file is sent
@@ -113,7 +100,6 @@ class TestResponseStucture(unittest.TestCase):
         self.assertIn('failure', response)
         self.assertEqual(response['failure']['errors'][0]['detail']['audio'],
                          'File is empty or too small')
-        time.sleep(10)
 
     def test_api_response_invalid_audio_format_request(self):
         """Service should return ELG failure when mp3 audio file is sent
@@ -128,7 +114,6 @@ class TestResponseStucture(unittest.TestCase):
         self.assertIn('failure', response)
         self.assertEqual(response['failure']['errors'][0]['detail']['audio'],
                          'Audio is not in WAV format')
-        time.sleep(10)
 
     def test_api_response_status_code_with_audio_only_request(self):
         """Should return status code 200 with only audio request
@@ -136,7 +121,6 @@ class TestResponseStucture(unittest.TestCase):
         files = self.make_audio_req(self.audio, has_annot=False)
         status_code = requests.post(self.url, files=files).status_code
         self.assertEqual(status_code, 200)
-        time.sleep(10)
 
     def test_api_response_result_with_audio_only_request(self):
         """Should return ELG annotation response with 2 second interval
@@ -153,8 +137,6 @@ class TestResponseStucture(unittest.TestCase):
             self.assertIn(res['features']['lang'], self.lang_codes)
             self.assertEqual(res['start'], id * 2)
             self.assertEqual(res['end'], id * 2 + 2)
-
-        time.sleep(10)
 
 
 if __name__ == '__main__':

@@ -48,20 +48,4 @@ def predict(audio_save_path, lang_segments_path):
             }
         } for seg, lang in data.items()]
 
-        # reporting about performance, since we have true labels
-        with open(os.path.join(cur_dir, fname, 'report', 'report.txt'),
-                  'r') as rp:
-            report = rp.read()
-
-        report_obj = {
-            "start": float(results[0]["start"]),
-            "end": float(results[-1]["end"]),
-            "features": {
-                "report": report
-            }
-        }
-
-        return {
-            "spoken_language_identification": results,
-            "reports": [report_obj]
-        }
+        return {"spoken_language_identification": results}
