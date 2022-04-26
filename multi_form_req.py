@@ -36,9 +36,5 @@ def send_request(url, audio, anno=''):
 
 print('Sending request with annotation')
 send_request(url='http://localhost:8000/process',
-             audio='audios/MEDIA_2014_00868316.wav',
-             anno='audios/MEDIA_2014_00868316-diar.json')
-
-# print('Sending request without annotation')
-# send_request(url='http://localhost:8000/process',
-#              audio='audios/MEDIA_2014_00868316.wav')
+             audio='test_samples/memad_test.wav',
+             anno='test_samples/memad_test_anno.json')
