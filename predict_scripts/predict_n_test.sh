@@ -49,7 +49,7 @@ for f in fi sv de fr en
   done
 
 # Compute average accuracy
-python3 metric_calc.py $1
+python3 utils/metric_calc.py $1
 
 
 
