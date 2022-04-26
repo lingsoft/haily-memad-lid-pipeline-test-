@@ -31,7 +31,7 @@ def send_request(url, audio, anno=''):
         }
 
     r = requests.post(url, files=files)
-    print(json.dumps(r.json()))
+    print(json.dumps(r.json(), indent=2))
 
 
 print('Sending request with annotation')
