@@ -263,7 +263,72 @@ python3 multi_form_req.py
 
 
 ```
-
+{
+   "response":{
+      "type":"annotations",
+      "annotations":{
+         "spoken_language_identification":[
+            {
+               "start":2.297,
+               "end":4.613,
+               "features":{
+                  "lang":"de",
+                  "true_label":"de"
+               }
+            },
+            {
+               "start":4.765,
+               "end":9.278,
+               "features":{
+                  "lang":"en",
+                  "true_label":"x-nolang"
+               }
+            },
+            {
+               "start":9.297,
+               "end":15.18,
+               "features":{
+                  "lang":"en",
+                  "true_label":"en"
+               }
+            },
+            {
+               "start":15.958,
+               "end":33.572,
+               "features":{
+                  "lang":"fi",
+                  "true_label":"fi"
+               }
+            },
+            {
+               "start":34.57,
+               "end":41.602,
+               "features":{
+                  "lang":"fr",
+                  "true_label":"fr"
+               }
+            },
+            {
+               "start":42.058,
+               "end":55.345,
+               "features":{
+                  "lang":"sv",
+                  "true_label":"sv"
+               }
+            }
+         ],
+         "reports":[
+            {
+               "start":2.297,
+               "end":55.345,
+               "features":{
+                  "report":"Out of 6 annotations, there are 5 annotations correctly predicted by memad\nThere are 1 correct de annotations\nThere are 1 correct en annotations\nThere are 1 correct fi annotations\nThere are 1 correct fr annotations\nThere are 1 correct sv annotations\nThere are 0 correct x-nolang annotations\nClassification report:               precision    recall  f1-score   support\n\n          de       1.00      1.00      1.00         1\n          en       0.50      1.00      0.67         1\n          fi       1.00      1.00      1.00         1\n          fr       1.00      1.00      1.00         1\n          sv       1.00      1.00      1.00         1\n    x-nolang       0.00      0.00      0.00         1\n\n    accuracy                           0.83         6\n   macro avg       0.75      0.83      0.78         6\nweighted avg       0.75      0.83      0.78         6\n"
+               }
+            }
+         ]
+      }
+   }
+}
 ```
 
 ## Test the service
