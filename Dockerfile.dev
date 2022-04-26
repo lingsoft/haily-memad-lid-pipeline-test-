@@ -1,0 +1,50 @@
+FROM python:3.7 as venv-build
+
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy in just the requirements file
+COPY requirements.txt /app/
+
+# Copy plda_bkp
+COPY plda_bkp /app/plda_bkp/
+# install plda
+RUN cd plda_bkp && pip install --no-cache-dir . && cd ..
+
+# install requirements
+RUN  pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt && \
+  pip install --no-cache-dir lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox && \
+  pip install --no-cache-dir tensorflow
+
+# main env
+FROM python:3.7-slim
+
+WORKDIR /elg
+RUN apt-get update && apt-get -y install tini ffmpeg sox jq \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+RUN addgroup --gid 1001 "elg" && adduser --disabled-password --gecos "ELG User,,," --home /elg --ingroup elg --uid 1001 elg && chmod +x /usr/bin/tini
+COPY --chown=elg:elg --from=venv-build /opt/venv /opt/venv
+
+
+# Copy ini the entrypoint script and everything else our app needs
+COPY --chown=elg:elg memad_lid_models /elg/memad_lid_models/
+COPY --chown=elg:elg resources /elg/resources/
+COPY --chown=elg:elg predict_scripts /elg/predict_scripts/
+COPY --chown=elg:elg utils /elg/utils/
+
+COPY --chown=elg:elg app.py docker-entrypoint-dev.sh utils.py /elg/
+
+ENV PATH="/opt/venv/bin:$PATH"
+ENV WORKERS=2
+ENV TIMEOUT=240
+ENV WORKER_CLASS=sync
+ENV LOGURU_LEVEL=INFO
+ENV PYTHON_PATH="/opt/venv/bin"
+
+RUN chmod +x ./docker-entrypoint-dev.sh
+ENTRYPOINT ["./docker-entrypoint-dev.sh"]
