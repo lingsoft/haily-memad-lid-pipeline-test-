@@ -30,7 +30,7 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN  pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt && \
   pip install --no-cache-dir lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox && \
-  pip install --no-cache-dir tensorflow
+  pip install --no-cache-dir https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow_cpu-2.8.0-cp37-cp37m-manylinux2010_x86_64.whl
 
 # Install plda
 # RUN cd plda_bkp && /elg/venv/bin/pip --no-cache-dir install . && cd ..
