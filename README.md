@@ -253,7 +253,7 @@ The script `multi_form_req.py` sends multipart/form-data POST request with the a
    - 0A42eBNqp2Q__U__S0---0753.910-0762.010.wav (fr)
    - _8h3f0QoF5Q__U__S109---0347.590-0361.420.wav (sv)
 
-The true lables of `memad_test.wav` (see `test.py`) were manually annotated using Audacity software.
+The true lables of `memad_test.wav` (see `test_samples/memad_test_anno.json`) were manually annotated using Audacity software.
 
 ```
 python3 multi_form_req.py
