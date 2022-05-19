@@ -1,6 +1,7 @@
 from elg import FlaskService
 from elg.model import Failure, AudioRequest, AnnotationsResponse
 from elg.model.base import StandardMessages
+from elg.model.base import StatusMessage
 
 import os
 import sys
@@ -42,7 +43,26 @@ class MemadLID(FlaskService):
             return Failure(errors=[err_msg])
 
         logging.info(f'Sent audio info: {audio_info.pprint()}')
+        logging.debug(request.sample_rate)
 
+        # warning about the parameter if it's not match the sent file
+        format_warning_msg, sampleRate_warning_msg = None, None
+        if request.format != 'LINEAR16':
+            format_warning_msg = StatusMessage(
+                code='elg.request.parameter.format.value.mismatch',
+                params=['LINEAR16'],
+                text=
+                'Sent parameter format is not LINEAR16 although sent file is: {0}'
+            )
+
+        if hasattr(request, 'sample_rate'
+                   ) and request.sample_rate != audio_info.sample_rate:
+            sampleRate_warning_msg = StatusMessage(
+                code='elg.request.parameter.sampleRate.value.mismatch',
+                params=[str(audio_info.sample_rate)],
+                text=
+                'Sent parameter sample rate is not matched with the sample rate of sent file: {0}'
+            )
         audio_name = str(uuid.uuid4()) + '.wav'
 
         audio_save_path = os.path.join(curr_dir, 'raw', audio_name[:-4],
@@ -74,10 +94,17 @@ class MemadLID(FlaskService):
         else:  # We split audio into chunks and predict each chunk
             segment_save_path = None
 
+        warnings_msg_lst = []
+        if format_warning_msg:
+            warnings_msg_lst.append(format_warning_msg)
+        if sampleRate_warning_msg:
+            warnings_msg_lst.append(sampleRate_warning_msg)
+
         try:
             prediction = utils.predict(audio_save_path, segment_save_path)
             shutil.rmtree(audio_dir)
-            return AnnotationsResponse(annotations=prediction)
+            return AnnotationsResponse(annotations=prediction,
+                                       warnings=warnings_msg_lst)
         except Exception as e:
             logging.error(e)
             shutil.rmtree(audio_dir)
