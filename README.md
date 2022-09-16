@@ -16,7 +16,7 @@ The pipeline works in two scenarios:
 The pipeline needs:
 - python3.7+
 - lidbox
-- [plda](https://github.com/RaviSoji/plda): 
+- [plda](https://github.com/RaviSoji/plda)
 - transformer
 - memad lid [models](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)
 
@@ -25,7 +25,7 @@ Install dependencies
 
 ```
 python3 -m venv venv && source venv/bin/activate
-pip install -r requiremets.txt
+pip install -r requirements.txt
 ```
 
 Install Lidbox
