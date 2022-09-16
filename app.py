@@ -48,12 +48,9 @@ class MemadLID(FlaskService):
         # warning about the parameter if it's not match the sent file
         format_warning_msg, sampleRate_warning_msg = None, None
         if request.format != 'LINEAR16':
-            format_warning_msg = StatusMessage(
-                code='elg.request.parameter.format.value.mismatch',
-                params=['LINEAR16'],
-                text=
-                'Sent parameter format is not LINEAR16 although sent file is: {0}'
-            )
+            err_msg = StandardMessages.generate_elg_request_audio_format_unsupported(
+                            params=[request.format])
+            return Failure(errors=[err_msg])
 
         if hasattr(request, 'sample_rate'
                    ) and request.sample_rate != audio_info.sample_rate:
