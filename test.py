@@ -19,7 +19,7 @@ class TestResponseStucture(unittest.TestCase):
         if has_annot:
             anno_lst = [_.copy() for _ in self.true_labels]
             for anno_ in anno_lst:
-                anno_["features"] = {"label": anno_.pop("id")}
+                anno_["features"] = {"label": anno_.pop("id") if "id" in anno_ else "x-nolang"}
                 anno_["start"] = float(anno_["start"])
                 anno_["end"] = float(anno_["end"])
                 anno_ = json.dumps(anno_)
@@ -63,7 +63,7 @@ class TestResponseStucture(unittest.TestCase):
         self.assertEqual(status_code, 200)
 
     def test_api_response_result_with_full_request(self):
-        """Should return ELG annotation response with original tinestamps
+        """Should return ELG annotation response with original timestamps
         and true lables when given full request.
         """
 
@@ -72,19 +72,16 @@ class TestResponseStucture(unittest.TestCase):
         print(response)
 
         self.assertEqual(response['response'].get('type'), 'annotations')
-        for id, true_obj in enumerate(self.true_labels):
-            self.assertEqual(
-                response['response']['annotations']
-                ['spoken_language_identification'][id]['features'].get(
-                    'true_label'), true_obj['id'])
-            self.assertEqual(
-                response['response']['annotations']
-                ['spoken_language_identification'][id].get('start'),
-                float(true_obj['start']))
-            self.assertEqual(
-                response['response']['annotations']
-                ['spoken_language_identification'][id].get('end'),
-                float(true_obj['end']))
+        
+        segments = []
+        for lang in response['response']['annotations']:
+            self.assertIn(lang, self.lang_codes)
+            for res in response['response']['annotations'][lang]:
+                segments.append(res)
+        segments_sorted = sorted(segments, key=lambda d: d['start'])
+        for i, segment in enumerate(segments_sorted):
+            self.assertEqual(segment['start'], float(self.true_labels[i]['start']))
+            self.assertEqual(segment['end'], float(self.true_labels[i]['end']))
 
     def test_api_response_too_small_audio_request(self):
         """Service should return ELG failure when
@@ -126,21 +123,26 @@ class TestResponseStucture(unittest.TestCase):
         """Should return ELG annotation response with 2 second interval
         timestamps and lang in allowed lang codes
         """
-
         files = self.make_audio_req(self.audio, has_annot=False)
         response = requests.post(self.url, files=files).json()
         print(response)
 
         self.assertEqual(response['response'].get('type'), 'annotations')
-        for id, res in enumerate(response['response']['annotations']
-                                 ['spoken_language_identification']):
-            self.assertIn(res['features']['lang'], self.lang_codes)
-            self.assertEqual(res['start'], id * 2)
-            self.assertEqual(res['end'], id * 2 + 2)
+        s = 0
+        segments = []
+        for lang in response['response']['annotations']:
+            self.assertIn(lang, self.lang_codes)
+            for res in response['response']['annotations'][lang]:
+                segments.append(res)
+        segments_sorted = sorted(segments, key=lambda d: d['start'])
+        for segment in segments_sorted:
+            self.assertEqual(segment['start'], s * 2)
+            self.assertEqual(segment['end'], s * 2 + 2)
+            s += 1
 
-    def test_mismatch_audio_format_request_and_sent_file(self):
-        """Service should return additional warning when user send mismatch
-        audio format w.r.t the sent audio file"""
+    def test_mismatch_audio_format(self):
+        """Service should return an error when user sends mismatching
+        audio format"""
 
         url = self.url
         audio = self.audio
@@ -159,9 +161,8 @@ class TestResponseStucture(unittest.TestCase):
         response = requests.post(url, files=files).json()
         print(response)
 
-        self.assertEqual(response['response'].get('type'), 'annotations')
-        self.assertEqual(response['response']['warnings'][0]['code'],
-                         'elg.request.parameter.format.value.mismatch')
+        self.assertEqual(response['failure']['errors'][0]['code'], 
+                         'elg.request.audio.format.unsupported')
 
     def test_mismatch_audio_sampleRate_request_and_sent_file(self):
         """Service should return additional warning when user send mismatch
@@ -186,33 +187,6 @@ class TestResponseStucture(unittest.TestCase):
 
         self.assertEqual(response['response'].get('type'), 'annotations')
         self.assertEqual(response['response']['warnings'][0]['code'],
-                         'elg.request.parameter.sampleRate.value.mismatch')
-
-    def test_mismatch_audio_sampleRate_and_format_request_and_sent_file(self):
-        """Service should return two additional warning when user send mismatch
-        audio format and sampleRate w.r.t the sent audio file"""
-
-        url = self.url
-        audio = self.audio
-        payload = {
-            "type": "audio",
-            "format": "mp3",
-            "sampleRate": 12000,
-        }
-
-        with open(audio, 'rb') as f:
-            files = {
-                'request': (None, json.dumps(payload), 'application/json'),
-                'content': (os.path.basename(audio), f.read(), 'audio/x-wav')
-            }
-
-        response = requests.post(url, files=files).json()
-        print(response)
-
-        self.assertEqual(response['response'].get('type'), 'annotations')
-        self.assertEqual(response['response']['warnings'][0]['code'],
-                         'elg.request.parameter.format.value.mismatch')
-        self.assertEqual(response['response']['warnings'][1]['code'],
                          'elg.request.parameter.sampleRate.value.mismatch')
 
 
