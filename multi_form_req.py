@@ -10,7 +10,7 @@ def send_request(url, audio, anno=''):
             anno_lst = json.load(json_file)
 
         for anno_ in anno_lst:
-            anno_["features"] = {"label": anno_.pop("id")}
+            anno_["features"] = {"label": anno_.pop("id") if "id" in anno_ else "x-nolang"}
             anno_["start"] = float(anno_["start"])
             anno_["end"] = float(anno_["end"])
             anno_ = json.dumps(anno_)
