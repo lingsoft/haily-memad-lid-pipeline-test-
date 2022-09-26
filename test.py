@@ -103,7 +103,7 @@ class TestResponseStucture(unittest.TestCase):
         """
 
         mp3_audio = os.path.join(os.getcwd(),
-                                 'test_samples/olen_kehittäjä.mp3')
+                                 'test_samples/olen_kehittaja.mp3')
 
         files = self.make_audio_req(mp3_audio, has_annot=False)
         response = requests.post(self.url, files=files).json()
