@@ -1,50 +1,52 @@
-FROM python:3.7 as venv-build
+FROM python:3.7-slim
 
-WORKDIR /app
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+# Install toolkits
+RUN apt-get update \
+    && apt-get install -y git build-essential locales && \
+    locale-gen en_US.UTF-8 && apt-get install ffmpeg -y && apt-get install sox -y && apt-get install jq -y
+
+# Install tini and create an unprivileged user
+ADD https://github.com/krallin/tini/releases/download/v0.19.0/tini /sbin/tini
+RUN addgroup --gid 1001 "elg" && adduser --disabled-password --gecos "ELG User,,," --home /elg --ingroup elg --uid 1001 elg && chmod +x /sbin/tini
+
+
 
 # Copy in just the requirements file
-COPY requirements.txt /app/
+COPY --chown=elg:elg requirements.txt /elg/
 
 # Copy plda_bkp
-COPY plda_bkp /app/plda_bkp/
-# install plda
-RUN cd plda_bkp && pip install --no-cache-dir . && cd ..
+COPY --chown=elg:elg plda_bkp /elg/plda_bkp/
 
-# install requirements
+# Everything from here down runs as the unprivileged user account
+USER elg:elg
+
+WORKDIR /elg
+
+# Create a Python virtual environment for the dependencies
+ENV VIRTUAL_ENV=/elg/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 RUN  pip install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt && \
   pip install --no-cache-dir lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox && \
-  pip install --no-cache-dir tensorflow
+  pip install --no-cache-dir https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow_cpu-2.8.0-cp37-cp37m-manylinux2010_x86_64.whl
 
-# main env
-FROM python:3.7-slim
-
-WORKDIR /elg
-RUN apt-get update && apt-get -y install tini ffmpeg sox jq \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-RUN addgroup --gid 1001 "elg" && adduser --disabled-password --gecos "ELG User,,," --home /elg --ingroup elg --uid 1001 elg && chmod +x /usr/bin/tini
-COPY --chown=elg:elg --from=venv-build /opt/venv /opt/venv
-
+# Install plda
+# RUN cd plda_bkp && /elg/venv/bin/pip --no-cache-dir install . && cd ..
+RUN cd plda_bkp && pip install --no-cache-dir . && cd ..
 
 # Copy ini the entrypoint script and everything else our app needs
 COPY --chown=elg:elg memad_lid_models /elg/memad_lid_models/
 COPY --chown=elg:elg resources /elg/resources/
 COPY --chown=elg:elg predict_scripts /elg/predict_scripts/
 COPY --chown=elg:elg utils /elg/utils/
+COPY --chown=elg:elg test_samples /elg/test_samples/
 
-COPY --chown=elg:elg app.py docker-entrypoint-dev.sh utils.py /elg/
+COPY --chown=elg:elg app.py multi_form_req.py test.py docker-entrypoint.sh utils.py  /elg/
 
-ENV PATH="/opt/venv/bin:$PATH"
 ENV WORKERS=2
-ENV TIMEOUT=240
+ENV TIMEOUT=60
 ENV WORKER_CLASS=sync
 ENV LOGURU_LEVEL=INFO
-ENV PYTHON_PATH="/opt/venv/bin"
-
-RUN chmod +x ./docker-entrypoint-dev.sh
-ENTRYPOINT ["./docker-entrypoint-dev.sh"]
+ENV PYTHON_PATH=${VIRTUAL_ENV}/bin
