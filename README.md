@@ -1,4 +1,4 @@
-# ELG API for Memad lidbox language identification pipeline
+# ELG API for MeMAD lidbox language identification pipeline
 
 This git repository contains [ELG compatible](https://european-language-grid.readthedocs.io/en/stable/all/A3_API/LTInternalAPI.html) Flask based REST API for [MeMAD](https://memad.eu) language identification project.
 
