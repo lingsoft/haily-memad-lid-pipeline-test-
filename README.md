@@ -12,39 +12,24 @@ The pipeline works in two scenarios:
 - if there is an audio file in the request, the API splits the input audio into 2 seconds chunks and predicts corresponding spoken languages.
 - if there is an audio file and corresponding annotation/diarization json text in the request, the API returns prediction results and reports the classification metrics. This works like testing the lidbox tool. 
 
-## General setup for local use
-The pipeline needs:
-- python3.7+
-- lidbox
-- [plda](https://github.com/RaviSoji/plda)
-- transformer
-- memad lid [models](https://zenodo.org/record/4486873#.YaXpQi0Rr0o)
-
-
-Install dependencies
+## Development
 
 ```
-python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
+git clone --recurse-submodules https://github.com/lingsoft/memad-lidbox-elg.git memad-lidbox
+cd memad-lidbox
+docker build -t memad-lidbox-dev -f Dockerfile.dev .
+docker run -it --rm -p 8000:8000 memad-lidbox-dev bash
+# flask run --host 0.0.0.0 --port 8000
 ```
-
-Install Lidbox
-
+To make an [example call](https://github.com/lingsoft/memad-lidbox-elg/edit/main/README.md) or to [run tests](https://github.com/lingsoft/memad-lidbox-elg/#test-the-service) you first need to open a separate terminal window and find out the ID of the running container:
 ```
-pip install lidbox -e git+https://github.com/py-lidbox/lidbox.git@e60d5ad2ff4d6076f9afaa780972c0301ee71ac8#egg=lidbox
+docker ps
 ```
-
-Install plda
-
+Then you can get into the Docker container's shell and run some tests:
 ```
-cd plda_bkp
-pip install .
-```
-
-Install tensorflow
-
-```
-pip install tensorflow
+docker exec -it [container id] bash 
+# python multi_form_req.py
+# python test.py
 ```
 
 ## Yle Data evaluation example
@@ -150,20 +135,13 @@ Classification report:
 weighted avg       1.00      0.49      0.66       100
 ```
 
-## Local development
-
-Start the local development app
-```
-FLASK_ENV=development flask run --host 0.0.0.0 --port 8000
-```
-
 ## Building the docker image
 
 ```
 docker build -t memad-lidbox .
 ```
 
-Or pull directly ready-made image `docker pull lingsoft/memad-lidbox:tagname`. (currently unavailable)
+Or pull directly ready-made image `docker pull lingsoft/memad-lidbox:tagname`.
 
 ## Deploying the service
 
