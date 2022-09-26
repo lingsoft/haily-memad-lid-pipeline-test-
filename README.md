@@ -21,7 +21,7 @@ docker build -t memad-lidbox-dev -f Dockerfile.dev .
 docker run -it --rm -p 8000:8000 memad-lidbox-dev bash
 # flask run --host 0.0.0.0 --port 8000
 ```
-To make an [example call](https://github.com/lingsoft/memad-lidbox-elg/#example-call) or to [run tests](https://github.com/lingsoft/memad-lidbox-elg/#test-the-service) you first need to open a separate terminal window and find out the ID of the running container:
+To make an [example call](https://github.com/lingsoft/memad-lidbox-elg/#example-call) or to [run tests](https://github.com/lingsoft/memad-lidbox-elg/#test-the-service), you first need to open a separate terminal window and find out the ID of the running container:
 ```
 docker ps
 ```
