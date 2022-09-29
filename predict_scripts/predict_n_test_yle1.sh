@@ -55,10 +55,3 @@ echo $audio_dir > paths.txt
 
 echo "************Predict labels with memad************\n"
 python3 ./utils/lid_prediction_pipeline.py ./resources/prediction_sample.toml paths.txt
-
-echo "************Calculate metrics************\n"
-python3 ./utils/evaluation.py $audio_dir/predict/utt2lang.json
-
-
-
-
