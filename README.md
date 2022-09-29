@@ -9,8 +9,8 @@ The ELG API was developed based on the project [memad-lid-pipeline](https://gith
 ## Use cases
 The API can identify these languages: fi, sv, fr, de, en, and x-nolang (denotes no language detected).
 The pipeline works in two scenarios:
-- if there is an audio file in the request, the API splits the input audio into 2 seconds chunks and predicts corresponding spoken languages.
-- if there is an audio file and corresponding annotation/diarization json text in the request, the API returns prediction results and reports the classification metrics. This works like testing the lidbox tool. 
+- if there is an audio file in the request, the API splits the input audio into 2-second chunks and predicts corresponding spoken languages for each chunk.
+- if there is an audio file and corresponding annotation/diarization json, defining the starting and ending times of speech fragments and their optional language labels, the API returns prediction results for the corresponding fragments. 
 
 ## Development
 
@@ -182,8 +182,21 @@ Part 1 with the name `request`
 }
 ```
 
-The property `format` is required and `LINEAR16` value is expected while the property `sampleRate` and `annotations` are optional. For the second use case (see section [use-case](#use-cases), `annotations` is required and should contain annotation data as shown in `multi_form_req.py`
-
+The property `format` is required and `LINEAR16` value is expected while the property `sampleRate` and `annotations` are optional. For the [second use case](#use-cases), the `annotations` file is required and should contain annotation data of the format:
+```
+[
+  {
+    "id": lang,
+    "start": number,
+    "end": number
+  }
+]
+```
+- `lang` (str)
+  - one of these labels: 'de', 'en', 'fi', 'fr', 'sv', and 'x-nolang'. The `"id": lang` pair is optional.
+- `start` and `end` (float)
+  - the time indices of the recognized language parts (in second). 
+  
 Part 2 with the name `content`
 - read in the audio file content
 - maximum file size support: 100MB
@@ -196,28 +209,28 @@ Part 2 with the name `content`
 {
    "response":{
       "type":"annotations",
-      "annotations":{
-         "spoken_language_identification":[
+      "warnings": [],
+      "annotations": {
+         lang: [
             {
-               "start":number,
-               "end":number,
-               "features":{
-                  "lang":str,
-                  "true_label":str
+               "start": number,
+               "end": number,
+               "features": {
+                  "true_label": str
                }
-            },
+            }
          ]
       }
    }
-}     
+}    
 ```
 
 ### Response structure
 
-- `start` and `end` (float)
-  - the time indices of the recognized language parts (in second). If use case 1, each start and end pair has a time interval of 2 seconds.
 - `lang` (str)
   - the corresponding identified language. Only one language returns
+- `start` and `end` (float)
+  - the time indices of the recognized language parts (in second). If use case 1, each start and end pair has a time interval of 2 seconds.
 - `true_label` (str)
    - the corresponding true label of language. One of these labels: 'de', 'en', 'fi', 'fr', 'sv', and 'x-nolang'. The property presents only when the corresponding annotation/diarization json text in the request is sent.
 
@@ -244,21 +257,22 @@ python3 multi_form_req.py
 {
   "response": {
     "type": "annotations",
+    "warnings": [],
     "annotations": {
-      "spoken_language_identification": [
+      "de": [
         {
           "start": 2.297,
           "end": 4.613,
           "features": {
-            "lang": "de",
             "true_label": "de"
           }
-        },
+        }
+      ],
+      "en": [
         {
           "start": 4.765,
           "end": 9.278,
           "features": {
-            "lang": "en",
             "true_label": "x-nolang"
           }
         },
@@ -266,31 +280,33 @@ python3 multi_form_req.py
           "start": 9.297,
           "end": 15.18,
           "features": {
-            "lang": "en",
             "true_label": "en"
           }
-        },
+        }
+      ],
+      "fi": [
         {
           "start": 15.958,
           "end": 33.572,
           "features": {
-            "lang": "fi",
             "true_label": "fi"
           }
-        },
+        }
+      ],
+      "fr": [
         {
           "start": 34.57,
           "end": 41.602,
           "features": {
-            "lang": "fr",
             "true_label": "fr"
           }
-        },
+        }
+      ],
+      "sv": [
         {
           "start": 42.058,
           "end": 55.345,
           "features": {
-            "lang": "sv",
             "true_label": "sv"
           }
         }
@@ -301,7 +317,7 @@ python3 multi_form_req.py
 ```
 
 ## Test the service
-`test_samples` directory contains two audio files: `memad_test.wav` and `olen_kehittäjä.mp3` for testing purpose `olen_kehittäjä.mp3` file was captured from Google translation text to speech fo the phrase "Olen kehittäjä" and used for testing wrong audio format purpose.
+`test_samples` directory contains two audio files: `memad_test.wav` and `olen_kehittaja.mp3` for testing purpose `olen_kehittaja.mp3` file was captured from Google translation text to speech fo the phrase "Olen kehittäjä" and used for testing wrong audio format purpose.
 
 To run test
 
