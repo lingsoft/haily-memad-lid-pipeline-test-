@@ -42,10 +42,7 @@ def predict(audio_save_path, lang_segments_path):
         for seg, lang in data.items():
             annot = {
                 "start": float(seg.split('_')[0]) * 1.0 / 1000,
-                "end": float(seg.split('_')[1]) * 1.0 / 1000,
-                "features": {
-                    "true_label": seg.split('_')[2]
-                }
+                "end": float(seg.split('_')[1]) * 1.0 / 1000
             }
             annotations.setdefault(lang, []).append(annot)
         return annotations
