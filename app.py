@@ -38,24 +38,24 @@ class MemadLID(FlaskService):
         try:
             audio_info = WAVE(io.BytesIO(audio_file)).info
         except Exception:
-            err_msg = StandardMessages.generate_elg_request_invalid(
-                detail={'audio': 'Audio is not in WAV format'})
+            err_msg = StandardMessages.generate_elg_request_audio_format_unsupported(
+                                params=["Audio is not in WAV format"])
             return Failure(errors=[err_msg])
 
         logging.info(f'Sent audio info: {audio_info.pprint()}')
         logging.debug(request.sample_rate)
 
         # warning about the parameter if it's not match the sent file
-        format_warning_msg, sampleRate_warning_msg = None, None
+        sampleRate_warning_msg = None
         if request.format != 'LINEAR16':
             err_msg = StandardMessages.generate_elg_request_audio_format_unsupported(
-                            params=[request.format])
+                        params=[request.format])
             return Failure(errors=[err_msg])
 
         if hasattr(request, 'sample_rate'
                    ) and request.sample_rate != audio_info.sample_rate:
             sampleRate_warning_msg = StatusMessage(
-                code='elg.request.parameter.sampleRate.value.mismatch',
+                code='lingsoft.sampleRate.value.mismatch',
                 params=[str(audio_info.sample_rate)],
                 text=
                 'Sent parameter sample rate is not matched with the sample rate of sent file: {0}'
@@ -92,16 +92,17 @@ class MemadLID(FlaskService):
             segment_save_path = None
 
         warnings_msg_lst = []
-        if format_warning_msg:
-            warnings_msg_lst.append(format_warning_msg)
         if sampleRate_warning_msg:
             warnings_msg_lst.append(sampleRate_warning_msg)
 
         try:
             prediction = utils.predict(audio_save_path, segment_save_path)
             shutil.rmtree(audio_dir)
-            return AnnotationsResponse(annotations=prediction,
-                                       warnings=warnings_msg_lst)
+            if warnings_msg_lst != []:
+                return AnnotationsResponse(annotations=prediction,
+                                           warnings=warnings_msg_lst)
+            else:
+                return AnnotationsResponse(annotations=prediction)
         except Exception as e:
             logging.error(e)
             shutil.rmtree(audio_dir)
