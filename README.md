@@ -209,7 +209,6 @@ Part 2 with the name `content`
 {
    "response":{
       "type":"annotations",
-      "warnings": [],
       "annotations": {
          lang: [
             {
@@ -257,7 +256,6 @@ python3 multi_form_req.py
 {
   "response": {
     "type": "annotations",
-    "warnings": [],
     "annotations": {
       "de": [
         {
