@@ -213,10 +213,7 @@ Part 2 with the name `content`
          lang: [
             {
                "start": number,
-               "end": number,
-               "features": {
-                  "true_label": str
-               }
+               "end": number
             }
          ]
       }
@@ -227,11 +224,9 @@ Part 2 with the name `content`
 ### Response structure
 
 - `lang` (str)
-  - the corresponding identified language. Only one language returns
+  - the corresponding identified language ('de', 'en', 'fi', 'fr' or 'sv'). Only one language is returned.
 - `start` and `end` (float)
   - the time indices of the recognized language parts (in second). If use case 1, each start and end pair has a time interval of 2 seconds.
-- `true_label` (str)
-   - the corresponding true label of language. One of these labels: 'de', 'en', 'fi', 'fr', 'sv', and 'x-nolang'. The property presents only when the corresponding annotation/diarization json text in the request is sent.
 
 ### Example call
 
@@ -260,53 +255,35 @@ python3 multi_form_req.py
       "de": [
         {
           "start": 2.297,
-          "end": 4.613,
-          "features": {
-            "true_label": "de"
-          }
+          "end": 4.613
         }
       ],
       "en": [
         {
           "start": 4.765,
-          "end": 9.278,
-          "features": {
-            "true_label": "x-nolang"
-          }
+          "end": 9.278
         },
         {
           "start": 9.297,
-          "end": 15.18,
-          "features": {
-            "true_label": "en"
-          }
+          "end": 15.18
         }
       ],
       "fi": [
         {
           "start": 15.958,
-          "end": 33.572,
-          "features": {
-            "true_label": "fi"
-          }
+          "end": 33.572
         }
       ],
       "fr": [
         {
           "start": 34.57,
-          "end": 41.602,
-          "features": {
-            "true_label": "fr"
-          }
+          "end": 41.602
         }
       ],
       "sv": [
         {
           "start": 42.058,
-          "end": 55.345,
-          "features": {
-            "true_label": "sv"
-          }
+          "end": 55.345
         }
       ]
     }
