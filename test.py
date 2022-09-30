@@ -18,6 +18,7 @@ class TestResponseStucture(unittest.TestCase):
         lang code endpoint, audio, and text"""
         if has_annot:
             anno_lst = [_.copy() for _ in self.true_labels]
+            
             for anno_ in anno_lst:
                 anno_["features"] = {"label": anno_.pop("id") if "id" in anno_ else "x-nolang"}
                 anno_["start"] = float(anno_["start"])
@@ -109,8 +110,8 @@ class TestResponseStucture(unittest.TestCase):
         response = requests.post(self.url, files=files).json()
         print(response)
         self.assertIn('failure', response)
-        self.assertEqual(response['failure']['errors'][0]['detail']['audio'],
-                         'Audio is not in WAV format')
+        self.assertEqual(response['failure']['errors'][0]['code'],
+                         'elg.request.audio.format.unsupported')
 
     def test_api_response_status_code_with_audio_only_request(self):
         """Should return status code 200 with only audio request
@@ -187,7 +188,7 @@ class TestResponseStucture(unittest.TestCase):
 
         self.assertEqual(response['response'].get('type'), 'annotations')
         self.assertEqual(response['response']['warnings'][0]['code'],
-                         'elg.request.parameter.sampleRate.value.mismatch')
+                         'lingsoft.sampleRate.value.mismatch')
 
 
 if __name__ == '__main__':
