@@ -78,10 +78,18 @@ class MemadLID(FlaskService):
             lang_segments_dict = []
             for anno_obj in lang_segments:
                 if hasattr(anno_obj, "start") and hasattr(anno_obj, "end"):
-                    lang_segments_dict.append({
-                        "start": str(anno_obj.start),
-                        "end": str(anno_obj.end)
-                    })
+                    if hasattr(anno_obj, "features") and "label" in anno_obj.features:
+                        lang_segments_dict.append({
+                            "id": anno_obj.features["label"],
+                            "start": str(anno_obj.start),
+                            "end": str(anno_obj.end)
+                        })
+                    else:
+                        lang_segments_dict.append({
+                            "id": "x-nolang",
+                            "start": str(anno_obj.start),
+                            "end": str(anno_obj.end)
+                        })
                 else:
                     err_msg = StandardMessages.generate_elg_request_invalid(
                                 detail={"request": "Annotation JSON must contain starting and ending times of speech fragments."})
