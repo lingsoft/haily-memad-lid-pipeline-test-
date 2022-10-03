@@ -75,18 +75,24 @@ class MemadLID(FlaskService):
         if request.annotations is not None:
             lang_segments = request.annotations['lang_segments']
             # reconstruct annotation json that the pipeline accepts
-            lang_segments = [{
-                "id": anno_obj.features['label'],
-                "start": str(anno_obj.start),
-                "end": str(anno_obj.end)
-            } for anno_obj in lang_segments]
+            lang_segments_dict = []
+            for anno_obj in lang_segments:
+                if hasattr(anno_obj, "start") and hasattr(anno_obj, "end"):
+                    lang_segments_dict.append({
+                        "start": str(anno_obj.start),
+                        "end": str(anno_obj.end)
+                    })
+                else:
+                    err_msg = StandardMessages.generate_elg_request_invalid(
+                                detail={"request": "Annotation JSON must contain starting and ending times of speech fragments."})
+                    return Failure(errors=[err_msg])
 
             # Save annotation here
             segment_save_path = os.path.join(curr_dir, 'raw', audio_name[:-4],
                                              audio_name[:-4] + '.json')
             logging.debug(f'segment save path: {segment_save_path}')
             with open(segment_save_path, 'w') as fp:
-                json.dump(lang_segments, fp)
+                json.dump(lang_segments_dict, fp)
 
         else:  # We split audio into chunks and predict each chunk
             segment_save_path = None
