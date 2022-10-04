@@ -72,7 +72,7 @@ class MemadLID(FlaskService):
             fp.write(audio_file)
         logging.debug(f'audio save path: {audio_save_path}')
         # If we get annotation file/ Annotation object in sent request
-        if request.annotations is not None:
+        if request.annotations is not None and 'segments' in request.annotations:
             lang_segments = request.annotations['lang_segments']
             # reconstruct annotation json that the pipeline accepts
             lang_segments_dict = []
