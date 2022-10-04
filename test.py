@@ -24,7 +24,7 @@ class TestResponseStucture(unittest.TestCase):
                 anno_["start"] = float(anno_["start"])
                 anno_["end"] = float(anno_["end"])
                 anno_ = json.dumps(anno_)
-            annots = {"lang_segments": anno_lst}
+            annots = {"segments": anno_lst}
 
             payload = {
                 "type": "audio",
