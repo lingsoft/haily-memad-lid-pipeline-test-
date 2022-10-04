@@ -23,7 +23,7 @@ def send_request(url, audio, anno=''):
             print(Failure(errors=[err_msg]))
             exit()
             
-        annots = {"lang_segments": anno_lst}
+        annots = {"segments": anno_lst}
         payload = {
             "type": "audio",
             "format": "LINEAR16",
