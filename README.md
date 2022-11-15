@@ -46,6 +46,10 @@ Or pull directly ready-made image `docker pull lingsoft/memad-lidbox:tagname`.
 docker run -d -p <port>:8000 --init --memory="2g" --restart always memad-lidbox
 ```
 
+To prevent the critical worker timeout error you may need to increase environment variable `TIMEOUT`.
+The default value is now only 60 seconds. Add `--env TIMEOUT=xxx` to call.
+You can also set the number of the workers in the same way.
+
 ## REST API
 The ELG Audio service accepts POST requests of Content-Type: multipart/form-data with two parts, the first part with name `request` has type: `application/json`, and the second part with name `content` will be audio/x-wav type which contains the actual audio data file.
 
