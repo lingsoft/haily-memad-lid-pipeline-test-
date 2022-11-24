@@ -99,7 +99,7 @@ if __name__ == '__main__':
     if not tsv_folder.endswith("/"):
         tsv_folder += "/"
     for video_filename in os.listdir(sys.argv[1]):
-        if video_filename.endswith(".mp4") and video_filename != "MEDIA_2014_00868316.mp4":
+        if video_filename.endswith(".mp4"):
             print(video_filename)
             tsv_file = tsv_folder + video_filename[:-4] + ".tsv"
             video_filename = video_folder + video_filename
